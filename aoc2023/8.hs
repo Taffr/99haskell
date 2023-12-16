@@ -4,9 +4,9 @@ import qualified Data.Map as Map
 
 main :: IO ()
 main = do
-    input <- readFile "1.txt"
+    input <- readFile "input8.txt"
     let ls = lines input
-    print $ solve2 $ parseCamelMap ls
+    print $ solve $ parseCamelMap ls
 
 data CamelMap = CamelMap { instructions :: [Char], graph :: Map String (String, String) } deriving (Show)
 
@@ -23,31 +23,19 @@ stripString :: [Char] -> String -> String
 stripString chars = filter (`notElem` chars) 
 
 solve :: CamelMap -> Int
-solve cm = recurse "ZZZ" (instructions cm) "AAA"
-    where
-        recurse :: String -> [Char] -> String -> Int
-        recurse dest (i:is) curr
-            | dest == curr = 0
-            | otherwise = 1 + recurse dest nextInstructions nextNode
-            where 
-                nextNode = case Map.lookup curr (graph cm) of
-                    Just (l, r) -> if i == 'L' then l else r
-                    Nothing -> error "bad lookup"
-                nextInstructions :: [Char]
-                nextInstructions = is ++ [i]
+solve cm = recurse (== "ZZZ") (instructions cm) (graph cm) "AAA"
+
+solve2 :: CamelMap -> Int
+solve2 cm = foldr1 lcm $ map (recurse isEndNode (instructions cm) (graph cm)) $ filter isStartingPath $ Map.keys $ graph cm
+
+recurse :: (String -> Bool) -> [Char] -> Map String (String, String) -> String -> Int
+recurse p (i:is) m curr
+    | p curr = 0
+    | otherwise = 1 + recurse p (is ++ [i]) m nextNode
+    where 
+        nextNode = case Map.lookup curr m of
+            Just (l, r) -> if i == 'L' then l else r
+            Nothing -> error "bad lookup"
 
 isStartingPath s = last s == 'A'
 isEndNode s = last s == 'Z'
-
-solve2 :: CamelMap -> Int
-solve2 cm = recurse (instructions cm) $ filter isStartingPath $ Map.keys $ graph cm
-    where
-        recurse :: [Char] -> [String] -> Int
-        recurse (i:is) currNodes
-            | (not . all isEndNode) currNodes = 1 + recurse (is ++ [i]) nextNodes
-            | otherwise = 0
-            where 
-                nextNodes = map nextNode currNodes
-                nextNode curr = case Map.lookup curr (graph cm) of
-                    Just (l, r) -> if i == 'L' then l else r
-                    Nothing -> error "bad lookup"
