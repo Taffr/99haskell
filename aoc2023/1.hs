@@ -34,7 +34,7 @@ startsWithDigit s =
     where
         flippedStartsWith = flip startsWith
     
-getStringDigit :: String -> Int    
+getStringDigit :: String -> Int
 getStringDigit s
     | startsWith "one"   s = 1
     | startsWith "two"   s = 2

@@ -36,10 +36,4 @@ findNumberWins r = length $ filter (\d -> distance r < d) $ getDistancesForMaxTi
 getDistancesForMaxTime :: Int -> [Int]
 getDistancesForMaxTime maxTime = map (uncurry (*)) tuples
     where 
-        tuples =  zip [0 .. maxTime] [maxTime, maxTime - 1 .. 0]
-
-findDistanceForSpeedAndTime :: Int -> Int -> Int
-findDistanceForSpeedAndTime = (*)
-
-
-
+        tuples = zip [0 .. maxTime] [maxTime, maxTime - 1 .. 0]
